@@ -1,11 +1,11 @@
 //MAIN ROUTER
 
 //load route user
-const clientRouters = require('./clients');
+const clientRouters = require('./client');
 const roomRouters = require('./rooms');
 const addressRouters = require('./addresses');
 const employeeRouters = require('./employees');
-const reservationRouters = require('./reservations');
+const reservationRouters = require('./reservation');
 const transactionRouters = require('./transactions');
 
 
@@ -22,7 +22,7 @@ const appRouter = (app,fs) => {
   roomRouters(app,fs);
   addressRouters(app,fs);
   employeeRouters(app,fs);
-  reservationRouters(app,fs);
+  reservationRouters();
   transactionRouters(app,fs);
 };
 

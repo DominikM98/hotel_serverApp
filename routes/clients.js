@@ -1,4 +1,4 @@
-const userRouters = (app, fs) => {
+/*const userRouters = (app, fs) => {
   // variables
   const dataPath = './data/clients.json';
 
@@ -94,4 +94,4 @@ const userRouters = (app, fs) => {
 
 };
 
-module.exports = userRouters;
+module.exports = userRouters;*/
