@@ -22,7 +22,7 @@ const appRouter = (app,fs) => {
   roomRouters(app,fs);
   addressRouters(app,fs);
   employeeRouters(app,fs);
-  reservationRouters();
+  reservationRouters(app,fs);
   transactionRouters(app,fs);
 };
 

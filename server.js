@@ -1,3 +1,4 @@
+
 const { MongoClient } = require('mongodb'); //mongo db
 const Hapi = require('@hapi/hapi');
 const Qs = require('qs');
@@ -19,6 +20,8 @@ const server = Hapi.server({
   }
 });
 
+//RESERVATIONS
+//show one of reservations
 server.route({
   method: 'GET',
   path: '/reservation/showReservation',
@@ -29,6 +32,7 @@ server.route({
   }
 });
 
+//show all reservations
 server.route({
   method: 'GET',
   path: '/reservation/showReservations',
@@ -39,8 +43,7 @@ server.route({
   }
 });
 
-
-
+// create new reservation
 server.route({
   method: 'POST',
   path: '/reservation/createReservation',
@@ -58,14 +61,44 @@ server.route({
       booking_price: request.payload.booking_price
     });
   }
-
 });
 
+//delete reservation
 server.route({
   method: 'DELETE',
   path: '/reservation/deleteReservation',
   handler: function(request, h){
 
+  }
+});
+
+
+//RESTAURANT
+//show all item menu
+server.route({
+  method: 'GET',
+  path: '/restauration/showItems',
+  handler: function (request, h) {
+
+    collection = client.db("hotel_management").collection("itemMenu");
+    console.log(collection)
+    return collection.find({}).toArray()
+  }
+});
+
+//add new item menu
+server.route({
+  method: 'POST',
+  path: '/restauration/createItemMenu',
+  handler: function (request, h) {
+
+    return createListing(client, {
+      product_name: request.payload.product_name,
+      ingredients: request.payload.ingredients,
+      product_weight: request.payload.product_weight,
+      product_price: request.payload.product_price,
+      type_of_product: request.payload.type_of_product
+    });
   }
 });
 
@@ -75,6 +108,7 @@ const init = async () => {
   await server.start();
   console.log('Server running on %s', server.info.uri);
 };
+
 
 async function findOneListing(client, nameOfListing) {
   const result = await client.db("hotel_management").collection("reservation").findOne({last_name: nameOfListing});
