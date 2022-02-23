@@ -1,11 +1,7 @@
-
-const { MongoClient } = require('mongodb'); //mongo db
-const Hapi = require('@hapi/hapi');
-const Qs = require('qs');
-
-
-const uri = "mongodb+srv://DominikM98:ZIOMekpl50@hotelmanagement.7bg2w.mongodb.net/myFirstDatabase?retryWrites=true&w=majority";
-const client = new MongoClient(uri);
+import Hapi from '@hapi/hapi';
+import Qs from 'qs';
+import mongoose from 'mongoose';
+//import {Restaurant} from './schemas/restaurant.js';
 
 const server = Hapi.server({
   port: 3000,
@@ -20,6 +16,42 @@ const server = Hapi.server({
   }
 });
 
+const uri = "mongodb://localhost:27017/aaa";
+const init = async () => {
+ /* mongoose.connect(uri)
+      .then(r => console.log(r, 'Connect successfully'))
+      .catch((err) => console.log(err));*/
+
+ mongoose.connect(uri, {useNewUrlParser: true, useUnifiedTopology: true});
+
+ var db = mongoose.connection;
+
+ db.on('error', console.log.bind(console, 'error'));
+ db.once('open', function() { console.log("Connect success")})
+
+  await server.start();
+};
+
+init();
+
+
+//RESTAURANT
+//show all item menu
+server.route({
+  method: 'GET',
+  path: '/restauration/showItems',
+  handler: async (request, h) => {
+
+    const test = 'test';
+      const itemMenu =  Restaurant.findOne({type_of_product: 'Soup'});
+      return itemMenu;
+
+
+  }
+});
+
+
+/*
 //RESERVATIONS
 //show one of reservations
 server.route({
@@ -92,31 +124,37 @@ server.route({
   path: '/restauration/createItemMenu',
   handler: function (request, h) {
 
-    return createListing(client, {
+    collection = client.db("hotel_management").collection("itemMenu");
+    return collection.insertOne({
       product_name: request.payload.product_name,
       ingredients: request.payload.ingredients,
       product_weight: request.payload.product_weight,
       product_price: request.payload.product_price,
       type_of_product: request.payload.type_of_product
     });
+
   }
 });
 
-const init = async () => {
+//delete item from menu
+server.route({
+  method: 'DELETE',
+  path: '/restauration/deleteItemMenu/{_id}',
+  handler: function(request, h){
 
-  await client.connect();
-  await server.start();
-  console.log('Server running on %s', server.info.uri);
-};
+    const id = request.payload._id;
+    collection = client.db("hotel_management").collection("itemMenu");
+    return collection.deleteOne({_id: id})
 
-
-async function findOneListing(client, nameOfListing) {
-  const result = await client.db("hotel_management").collection("reservation").findOne({last_name: nameOfListing});
-
-  if (result){
-    console.log(result);
-    return result
   }
+});
+
+
+
+async function deleteListingByName(client, nameOfListing) {
+  const result = await client.db("hotel_management").collection("itemMenu")
+      .deleteOne({ _id: nameOfListing });
+  console.log(`${result.deletedCount} document(s) was/were deleted.`);
 }
 
 
@@ -134,4 +172,13 @@ process.on('unhandledRejection', (err) => {
   process.exit(1);
 });
 
+
+const init = async () => {
+
+  await client.connect();
+  await server.start();
+  console.log('Server running on %s', server.info.uri);
+};
+
 init();
+*/
