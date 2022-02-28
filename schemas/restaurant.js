@@ -3,11 +3,12 @@ import mongoose from "mongoose";
 const { Schema } = mongoose;
 
 const restaurantSchema = new Schema({
-    product_name: {type: String},
-    ingredients: {type: String},
-    product_weight: {type: String},
-    product_price: {type: String},
-    type_of_product: {type: String}
+    product_name: String,
+    ingredients:  String,
+    product_weight:  Number,
+    product_price:  Number,
+    type_of_product:  String,
+    quantity: Number
 },{
     collection: 'itemMenu'
 });
