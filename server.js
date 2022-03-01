@@ -5,6 +5,7 @@ import mongoose from 'mongoose';
 import {Restaurant} from './schemas/restaurant.js';
 import {Reservation} from './schemas/reservation.js';
 import {Room} from './schemas/room.js';
+import {Employee} from "./schemas/employee.js";
 
 const server = Hapi.server({
   port: 3000,
@@ -59,7 +60,8 @@ server.route({
             product_weight: request.payload.product_weight,
             product_price: request.payload.product_price,
             type_of_product: request.payload.type_of_product,
-            quantity: request.payload.quantity
+            min_quantity: request.payload.min_quantity,
+            max_quantity: request.payload.max_quantity
         });
         return h.response(newItemMenu).code(200);
     }
@@ -148,20 +150,88 @@ server.route({
             number_of_people: request.payload.number_of_people,
             type_of_beds: request.payload.type_of_beds,
             smoking: request.payload.smoking,
-            price: request.payload.price
+            price: request.payload.price,
+            available: request.payload.available
         });
         return h.response(newRoom).code(200);
     }
 });
 
-//delete reservation
+//edit room
+server.route({
+    method: 'PUT',
+    path: '/room/updateRoom',
+    handler: async (request, h) => {
+
+        const id = request.query.id;
+        const updateRoom = await Room.findByIdAndUpdate({_id:id}, {
+            floor_number: request.payload.floor_number,
+            room_number: request.payload.room_number,
+            room_name: request.payload.room_name,
+            number_of_people: request.payload.number_of_people,
+            type_of_beds: request.payload.type_of_beds,
+            smoking: request.payload.smoking,
+            price: request.payload.price,
+            available: request.payload.available
+        });
+        return h.response(updateRoom).code(200);
+    }
+});
+
+//delete room
 server.route({
     method: 'DELETE',
     path: '/room/deleteRoom',
     handler: async (request, h) => {
 
         const id = request.query.id;
-        const delRoom = await Room.findOne({_id: id}).remove();
+        const delRoom = await Room.find({_id: id}).remove();
         return h.response(delRoom).code(200);
     }
+});
+
+//EMPLOYEE
+//get all employess
+server.route({
+    method: 'GET',
+    path: '/employee/showEmployees',
+    handler: async (request, h) => {
+
+        const getEmployees = await Employee.find({});
+        return h.response(getEmployees).code(200);
+    }
+});
+
+//add new employee
+server.route({
+    method: 'POST',
+    path: '/employee/createEmployee',
+    handler: async (request, h) => {
+
+        const newEmployee = await Employee.create({
+            first_name: request.payload.first_name,
+            last_name: request.payload.last_name,
+            address: request.payload.address,
+            email: request.payload.email,
+            phone_number: request.payload.phone_number,
+            position: request.payload.position,
+            name_bank: request.payload.name_bank,
+            account_number: request.payload.account_number,
+            login: request.payload.login,
+            password: request.payload.password
+        });
+        return h.response(newEmployee).code(200);
+    }
+});
+
+//delete employee
+server.route({
+   method: 'DELETE',
+   path: '/employee/deleteEmployee',
+   handler: async (request, h) => {
+
+       const id = request.query.id;
+       const delEmployee = await Employee.findOne({_id: id}).remove();
+       return h.response(delEmployee).code(200);
+   }
 });

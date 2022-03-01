@@ -8,7 +8,8 @@ const restaurantSchema = new Schema({
     product_weight:  Number,
     product_price:  Number,
     type_of_product:  String,
-    quantity: Number
+    min_quantity: {type: Number, default: 0},
+    max_quantity: Number
 },{
     collection: 'itemMenu'
 });
