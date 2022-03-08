@@ -10,7 +10,7 @@ const employeeSchema = new Schema({
    phone_number: Number,
    position: String,
    name_bank: String,
-   account_number: Number,
+   account_number: String,
    login: String,
    password: String
 }, {

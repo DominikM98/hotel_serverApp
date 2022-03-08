@@ -6,6 +6,7 @@ import {Restaurant} from './schemas/restaurant.js';
 import {Reservation} from './schemas/reservation.js';
 import {Room} from './schemas/room.js';
 import {Employee} from "./schemas/employee.js";
+import {AnnualLeave} from "./schemas/annualLeave.js";
 
 const server = Hapi.server({
   port: 3000,
@@ -233,5 +234,46 @@ server.route({
        const id = request.query.id;
        const delEmployee = await Employee.findOne({_id: id}).remove();
        return h.response(delEmployee).code(200);
+   }
+});
+
+
+//ANNUAL LEAVE
+//get all annual leave
+server.route({
+    method: 'GET',
+    path: '/employee/showAnnualLeave',
+    handler: async (request, h) =>{
+
+        const getAnnualLeave = await AnnualLeave.find({});
+        return h.response(getAnnualLeave).code(200);
+    }
+});
+
+//add new annual leave
+server.route({
+    method: 'POST',
+    path: '/employee/createAnnualLeave',
+    handler: async (request, h) => {
+        const newAnnualLeave = await AnnualLeave.create({
+            first_name: request.payload.first_name,
+            last_name: request.payload.last_name,
+            position: request.payload.position,
+            from_date: request.payload.from_date,
+            to_date: request.payload.to_date,
+            length_day: request.payload.length_day
+        });
+        return h.response(newAnnualLeave).code(200);
+    }
+});
+
+//delete annual leave
+server.route({
+   method: 'DELETE',
+   path: '/employee/deleteAnnualLeave',
+   handler: async (request, h) => {
+       const id = request.query.id;
+       const deleteAnnualLeave = await AnnualLeave.findOne({_id:id}).remove();
+       return h.response(deleteAnnualLeave).code(200);
    }
 });
