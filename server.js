@@ -7,6 +7,7 @@ import {Reservation} from './schemas/reservation.js';
 import {Room} from './schemas/room.js';
 import {Employee} from "./schemas/employee.js";
 import {AnnualLeave} from "./schemas/annualLeave.js";
+import {Bill} from "./schemas/bill.js";
 
 const server = Hapi.server({
   port: 3000,
@@ -43,7 +44,7 @@ init();
 //show all item menu
 server.route({
   method: 'GET',
-  path: '/restauration/showItems',
+  path: '/restaurant/showItems',
   handler: async (request, h) => {
       const getItemMenu = await Restaurant.find({});
       return h.response(getItemMenu).code(200);
@@ -53,7 +54,7 @@ server.route({
 //add new item to menu
 server.route({
     method: 'POST',
-    path: '/restauration/createItemMenu',
+    path: '/restaurant/createItemMenu',
     handler: async (request, h) => {
         const newItemMenu = await Restaurant.create({
             product_name: request.payload.product_name,
@@ -71,7 +72,7 @@ server.route({
 //delete item from menu
 server.route({
     method: 'DELETE',
-    path: '/restauration/deleteItemMenu',
+    path: '/restaurant/deleteItemMenu',
     handler: async (request, h) => {
 
         const id = request.query.id;
@@ -107,7 +108,8 @@ server.route({
             parking: request.payload.parking,
             breakfast: request.payload.breakfast,
             car_registration: request.payload.car_registration,
-            number_room: request.payload.number_room,
+            room_number: request.payload.room_number,
+            number_of_people: request.payload.number_of_people,
             booking_price: request.payload.booking_price
         });
         return h.response(newReservation).code(200);
@@ -276,4 +278,32 @@ server.route({
        const deleteAnnualLeave = await AnnualLeave.findOne({_id:id}).remove();
        return h.response(deleteAnnualLeave).code(200);
    }
+});
+
+//BILL
+//get all bills
+server.route({
+    method: 'GET',
+    path: '/restaurant/showBill',
+    handler: async (request, h) =>{
+
+        const getBill = await Bill.find({});
+        return h.response(getBill).code(200);
+    }
+});
+
+//add new bill
+server.route({
+    method: 'POST',
+    path: '/restaurant/createBill',
+    handler: async (request, h) => {
+        const newBill = await Bill.create({
+            total_price: request.payload.total_price,
+            discount_value: request.payload.discount_value,
+            cash_method: request.payload.cash_method,
+            card_method: request.payload.card_method,
+            voucher_method: request.payload.voucher_method
+        });
+        return h.response(newBill).code(200);
+    }
 });

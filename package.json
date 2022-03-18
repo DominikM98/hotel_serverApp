@@ -12,6 +12,7 @@
     "hapi-mongodb": "^10.0.3",
     "mongodb": "^4.3.1",
     "mongoose": "^6.2.2",
+    "mongoose-long": "^0.5.1",
     "qs": "latest",
     "uniqid": "^5.2.0"
   },

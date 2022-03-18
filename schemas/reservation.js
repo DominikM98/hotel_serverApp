@@ -10,7 +10,8 @@ const reservationSchema = new Schema({
     parking: Boolean,
     breakfast: Boolean,
     car_registration: String,
-    number_room: String,
+    room_number: String,
+    number_of_people: Number,
     booking_price: Number
 },{
     collection: 'reservation'
