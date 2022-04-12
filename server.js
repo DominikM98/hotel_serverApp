@@ -1,6 +1,8 @@
 import Hapi from '@hapi/hapi';
 import Qs from 'qs';
 import mongoose from 'mongoose';
+import bcrypt from 'bcrypt';
+import jwt from 'jsonwebtoken';
 
 import {Restaurant} from './schemas/restaurant.js';
 import {Reservation} from './schemas/reservation.js';
@@ -8,6 +10,8 @@ import {Room} from './schemas/room.js';
 import {Employee} from "./schemas/employee.js";
 import {AnnualLeave} from "./schemas/annualLeave.js";
 import {Bill} from "./schemas/bill.js";
+import {Users} from "./schemas/users.js";
+import {Client} from "./schemas/client.js";
 
 const server = Hapi.server({
   port: 3000,
@@ -39,6 +43,69 @@ const init = async () => {
 
 init();
 
+//LOGIN
+// sign up user
+server.route({
+    method:'POST',
+    path: '/auth/signup',
+    handler: async (request, h) => {
+        const password = request.payload.password;
+        const login = request.payload.login;
+
+        //let hashedPass = await bcrypt.hash(password, 10);
+
+        const newUser = await Users.create({
+            login: request.payload.login,
+            password: request.payload.password,
+            role: request.payload.role
+        });
+
+        const token = jwt.sign(
+            {login},
+            "fn32iuhf392hf392hg3279gh32nvh82",
+            {expiresIn: 360000});
+
+
+
+        return h.response(newUser).code(200)
+    }
+});
+
+// get all users
+server.route({
+    method:'GET',
+    path: '/auth/users',
+    handler: async (request, h) => {
+        const getUsers = await Users.find({});
+        return h.response(getUsers).code(200)
+    }
+});
+
+//check that user is exists
+server.route({
+    method:'POST',
+    path: '/auth/login',
+    handler: async (request, h) => {
+        const password = request.payload.password;
+        const login = request.payload.login;
+
+        let user = await Users.findOne({login: login});
+
+        let isMatch = await bcrypt.compare(password, user.password);
+
+        const token = jwt.sign(
+            {login},
+            "fn32iuhf392hf392hg3279gh32nvh82",
+            {expiresIn: 360000});
+        
+        const u = {
+            login: login,
+            role: user.role
+        };
+
+       return h.response(u).code(200)
+    }
+});
 
 //RESTAURANT
 //show all item menu
@@ -49,6 +116,7 @@ server.route({
       const getItemMenu = await Restaurant.find({});
       return h.response(getItemMenu).code(200);
   }
+
 });
 
 //add new item to menu
@@ -56,6 +124,8 @@ server.route({
     method: 'POST',
     path: '/restaurant/createItemMenu',
     handler: async (request, h) => {
+
+        console.log(request.payload)
         const newItemMenu = await Restaurant.create({
             product_name: request.payload.product_name,
             ingredients: request.payload.ingredients,
@@ -100,6 +170,7 @@ server.route({
     path: '/reservation/createReservation',
     handler: async (request, h) => {
 
+        console.log(request.payload)
         const newReservation = await Reservation.create({
             first_name: request.payload.first_name,
             last_name: request.payload.last_name,
@@ -146,6 +217,7 @@ server.route({
     path: '/room/createRoom',
     handler: async (request, h) => {
 
+        console.log(request.payload)
         const newRoom = await Room.create({
             floor_number: request.payload.floor_number,
             room_number: request.payload.room_number,
@@ -157,27 +229,6 @@ server.route({
             available: request.payload.available
         });
         return h.response(newRoom).code(200);
-    }
-});
-
-//edit room
-server.route({
-    method: 'PUT',
-    path: '/room/updateRoom',
-    handler: async (request, h) => {
-
-        const id = request.query.id;
-        const updateRoom = await Room.findByIdAndUpdate({_id:id}, {
-            floor_number: request.payload.floor_number,
-            room_number: request.payload.room_number,
-            room_name: request.payload.room_name,
-            number_of_people: request.payload.number_of_people,
-            type_of_beds: request.payload.type_of_beds,
-            smoking: request.payload.smoking,
-            price: request.payload.price,
-            available: request.payload.available
-        });
-        return h.response(updateRoom).code(200);
     }
 });
 
@@ -211,6 +262,7 @@ server.route({
     path: '/employee/createEmployee',
     handler: async (request, h) => {
 
+        console.log(request.payload)
         const newEmployee = await Employee.create({
             first_name: request.payload.first_name,
             last_name: request.payload.last_name,
@@ -257,6 +309,8 @@ server.route({
     method: 'POST',
     path: '/employee/createAnnualLeave',
     handler: async (request, h) => {
+
+        console.log(request.payload)
         const newAnnualLeave = await AnnualLeave.create({
             first_name: request.payload.first_name,
             last_name: request.payload.last_name,
@@ -297,13 +351,54 @@ server.route({
     method: 'POST',
     path: '/restaurant/createBill',
     handler: async (request, h) => {
+
+        console.log(request.payload)
         const newBill = await Bill.create({
             total_price: request.payload.total_price,
-            discount_value: request.payload.discount_value,
-            cash_method: request.payload.cash_method,
-            card_method: request.payload.card_method,
-            voucher_method: request.payload.voucher_method
+            discount_value: request.payload.discount_value
         });
         return h.response(newBill).code(200);
+    }
+});
+
+//CLIENT
+//show all client
+server.route({
+    method:'GET',
+    path: '/client/showClients',
+    handler: async (request, h) => {
+        const getClient = await Client.find({});
+        return h.response(getClient).code(200);
+    }
+});
+
+//add new client
+server.route({
+    method: 'POST',
+    path: '/client/createClient',
+    handler: async (request, h) => {
+
+        console.log(request.payload)
+        const newClient = await Client.create({
+            first_name: request.payload.first_name,
+            last_name: request.payload.last_name,
+            pesel_number: request.payload.pesel_number,
+            address: request.payload.address,
+            email_address: request.payload.email_address,
+            phone_number: request.payload.phone_number
+        });
+
+        return h.response(newClient).code(200);
+    }
+});
+
+//delete client
+server.route({
+   method: 'DELETE',
+   path: '/client/deleteClient',
+    handler: async (request, h) => {
+        const id = request.query.id;
+        const deleteClient = await Client.findOne({_id:id}).remove();
+        return h.response(deleteClient).code(200);
     }
 });
