@@ -95,11 +95,13 @@ server.route({
 
         const token = jwt.sign(
             {login},
+            
             "fn32iuhf392hf392hg3279gh32nvh82",
             {expiresIn: 360000});
         
         const u = {
             login: login,
+            
             role: user.role
         };
 
@@ -129,6 +131,7 @@ server.route({
         const newItemMenu = await Restaurant.create({
             product_name: request.payload.product_name,
             ingredients: request.payload.ingredients,
+            allergens: request.payload.allergens,
             product_weight: request.payload.product_weight,
             product_price: request.payload.product_price,
             type_of_product: request.payload.type_of_product,
@@ -170,7 +173,7 @@ server.route({
     path: '/reservation/createReservation',
     handler: async (request, h) => {
 
-        console.log(request.payload)
+        console.log(request.payload);
         const newReservation = await Reservation.create({
             first_name: request.payload.first_name,
             last_name: request.payload.last_name,
@@ -225,8 +228,7 @@ server.route({
             number_of_people: request.payload.number_of_people,
             type_of_beds: request.payload.type_of_beds,
             smoking: request.payload.smoking,
-            price: request.payload.price,
-            available: request.payload.available
+            price: request.payload.price
         });
         return h.response(newRoom).code(200);
     }
@@ -266,6 +268,7 @@ server.route({
         const newEmployee = await Employee.create({
             first_name: request.payload.first_name,
             last_name: request.payload.last_name,
+            pesel_number: request.payload.pesel_number,
             address: request.payload.address,
             email: request.payload.email,
             phone_number: request.payload.phone_number,
@@ -354,6 +357,12 @@ server.route({
 
         console.log(request.payload)
         const newBill = await Bill.create({
+            order: [{
+                product_name: request.payload.product_name,
+                product_weight: request.payload.product_weight,
+                product_price: request.payload.product_price,
+                min_quantity: request.payload.min_quantity
+            }],
             total_price: request.payload.total_price,
             discount_value: request.payload.discount_value
         });
@@ -382,7 +391,6 @@ server.route({
         const newClient = await Client.create({
             first_name: request.payload.first_name,
             last_name: request.payload.last_name,
-            pesel_number: request.payload.pesel_number,
             address: request.payload.address,
             email_address: request.payload.email_address,
             phone_number: request.payload.phone_number

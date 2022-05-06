@@ -5,6 +5,7 @@ const {Schema} = mongoose;
 const employeeSchema = new Schema({
    first_name: String,
    last_name: String,
+   pesel_number: String,
    address: String,
    email: String,
    phone_number: Number,

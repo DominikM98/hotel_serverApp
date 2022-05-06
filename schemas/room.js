@@ -8,9 +8,8 @@ const roomSchema = new Schema ({
     room_name: String,
     number_of_people: Number,
     type_of_beds: String,
-    smoking: Boolean,
-    price: Number,
-    available: {type: Boolean, default: true}
+    smoking: String,
+    price: Number
 }, {
     collection: 'room'
 });
