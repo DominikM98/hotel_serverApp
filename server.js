@@ -3,6 +3,7 @@ import Qs from 'qs';
 import mongoose from 'mongoose';
 import bcrypt from 'bcrypt';
 import jwt from 'jsonwebtoken';
+import randomstring from 'randomstring'
 
 import {Restaurant} from './schemas/restaurant.js';
 import {Reservation} from './schemas/reservation.js';
@@ -12,6 +13,10 @@ import {AnnualLeave} from "./schemas/annualLeave.js";
 import {Bill} from "./schemas/bill.js";
 import {Users} from "./schemas/users.js";
 import {Client} from "./schemas/client.js";
+import {MobileReservation} from "./schemas/mobileReservation.js";
+import {dataHotel} from "./schemas/dataHotel.js";
+import {mobileUsers} from "./schemas/mobileUsers.js";
+
 
 const server = Hapi.server({
   port: 3000,
@@ -109,6 +114,117 @@ server.route({
     }
 });
 
+//MOBILE LOGIN
+//LOGIN
+// sign up user
+server.route({
+    method:'POST',
+    path: '/mobileAuth/signup',
+    handler: async (request, h) => {
+        const phoneNumber = request.payload.phone_number;
+
+        const security_code = randomstring.generate(16);
+
+        const newMobileUser = await mobileUsers.create({
+            phone_number: request.payload.phone_number,
+            password: request.payload.password,
+            security_code: security_code
+        });
+
+        const token = jwt.sign(
+            {phoneNumber},
+            "fn32iuhf392hf392hg3279gh32nvh82",
+            {expiresIn: 360000});
+
+        return h.response(newMobileUser).code(200)
+    }
+});
+
+// get all users
+server.route({
+    method:'GET',
+    path: '/mobileAuth/users',
+    handler: async (request, h) => {
+        const getMobileUsers = await mobileUsers.find({});
+        return h.response(getMobileUsers).code(200)
+    }
+});
+
+//check that user is exists
+server.route({
+    method:'POST',
+    path: '/mobileAuth/login',
+    handler: async (request, h) => {
+        const password = request.payload.password;
+        const phoneNumber = request.payload.phone_number;
+        console.log('number:', phoneNumber, ", pass: ", password)
+
+        let user = await mobileUsers.findOne({phone_number: phoneNumber});
+
+        const token = jwt.sign(
+            {phoneNumber},
+            "fn32iuhf392hf392hg3279gh32nvh82",
+            {expiresIn: 360000});
+
+        const u = {
+            phone_number: phoneNumber
+        };
+
+        const error = {
+            error: 'The password do not match!'
+        };
+
+        const userError = {
+            userError: 'This phone number do not exist!'
+        };
+
+        if(user === null){
+            return h.response(userError).code(404);
+        }else{
+            if (user.password !== password){
+                return h.response(error).code(401)
+            }else{
+                return h.response(u).code(200)
+            }
+        }
+
+    }
+});
+
+//password reminder
+server.route({
+    method:'POST',
+    path: '/mobileAuth/remindPassword',
+    handler: async (request, h) => {
+        const phoneNumber = request.payload.phone_number;
+        const security_code = request.payload.security_code;
+        console.log('number:', phoneNumber, ", token: ", security_code);
+
+        let user = await mobileUsers.findOne({phone_number: phoneNumber});
+
+        const error = {
+            error: 'The security code is wrong!'
+        };
+        const userError = {
+            userError: 'This phone number do not exist!'
+        };
+
+        if(user === null){
+            return h.response(userError).code(404);
+        }else{
+            if (user.security_code !== security_code){
+                return h.response(error).code(401);
+            }else{
+                const userPass = {
+                    password: user.password
+                };
+                return h.response(userPass).code(200);
+
+            }
+        }
+    }
+});
+
 //RESTAURANT
 //show all item menu
 server.route({
@@ -167,6 +283,21 @@ server.route({
     }
 });
 
+//show one reservation by phone number
+server.route({
+    method: 'GET',
+    path: '/reservation/showOneReservation',
+    handler: async (request, h) => {
+        const phoneNumber = request.query.phone_number;
+
+        console.log(phoneNumber);
+        const getOneReservation = await Reservation.find({"phone_number": phoneNumber});
+        return h.response(getOneReservation).code(200)
+      //  console.log(getOneReservation)
+       // return h.response(getOneReservation).code(200);
+    }
+});
+
 //add new reservation
 server.route({
     method: 'POST',
@@ -180,11 +311,16 @@ server.route({
             check_in: request.payload.check_in,
             check_out: request.payload.check_out,
             parking: request.payload.parking,
-            breakfast: request.payload.breakfast,
             car_registration: request.payload.car_registration,
+            breakfast: request.payload.breakfast,
+            quantity_breakfast: request.payload.quantity_breakfast,
+            mobile_reservation: request.payload.mobile_reservation,
+            phone_number: request.payload.phone_number,
             room_number: request.payload.room_number,
             number_of_people: request.payload.number_of_people,
-            booking_price: request.payload.booking_price
+            booking_price: request.payload.booking_price,
+            more_information: request.payload.more_information,
+            address_mail: request.payload.address_mail
         });
         return h.response(newReservation).code(200);
     }
@@ -199,6 +335,54 @@ server.route({
         const id = request.query.id;
         const delReservation = await Reservation.findOne({_id: id}).remove();
         return h.response(delReservation).code(200);
+    }
+});
+
+//MOBILE RESERVATIONS
+//show all mobile reservations
+server.route({
+    method: 'GET',
+    path: '/mobileReservation/showReservations',
+    handler: async (request, h) => {
+        const getMobileReservation = await MobileReservation.find({});
+        return h.response(getMobileReservation).code(200);
+    }
+});
+
+//add new mobile reservation
+server.route({
+    method: 'POST',
+    path: '/mobileReservation/createReservation',
+    handler: async (request, h) => {
+
+        console.log(request.payload);
+        const newMobileReservation = await MobileReservation.create({
+            first_name: request.payload.first_name,
+            last_name: request.payload.last_name,
+            check_in: request.payload.check_in,
+            check_out: request.payload.check_out,
+            parking: request.payload.parking,
+            breakfast: request.payload.breakfast,
+            quantity_breakfast: request.payload.quantity_breakfast,
+            car_registration: request.payload.car_registration,
+            number_of_rooms: request.payload.number_of_rooms,
+            number_of_people: request.payload.number_of_people,
+            phone_number: request.payload.phone_number,
+            more_information: request.payload.more_information
+        });
+        return h.response(newMobileReservation).code(200);
+    }
+});
+
+//delete mobile reservation
+server.route({
+    method: 'DELETE',
+    path: '/mobileReservation/deleteReservation',
+    handler: async (request, h) => {
+
+        const id = request.query.id;
+        const delMobileReservation = await MobileReservation.findOne({_id: id}).remove();
+        return h.response(delMobileReservation).code(200);
     }
 });
 
@@ -408,5 +592,66 @@ server.route({
         const id = request.query.id;
         const deleteClient = await Client.findOne({_id:id}).remove();
         return h.response(deleteClient).code(200);
+    }
+});
+
+//DATA ABOUT HOTEL
+//show all data
+server.route({
+    method:'GET',
+    path: '/showInformationHotel',
+    handler: async (request, h) => {
+        const getInformationHotel = await dataHotel.find({});
+        return h.response(getInformationHotel).code(200);
+    }
+});
+
+//add new data
+server.route({
+    method: 'POST',
+    path: '/createInformationHotel',
+    handler: async (request, h) => {
+
+        console.log(request.payload);
+        const newInformationHotel = await dataHotel.create({
+            description: request.payload.description,
+            facilities:[{ name_convenience: request.payload.name_convenience}],
+            contact_with_dept: [{
+                dept_name: request.payload.dept_name,
+                more_info: [{
+                    person_name: request.payload.person_name,
+                    phone_number: request.payload.phone_number,
+                    email_address: request.payload.email_address
+                }],
+            }],
+            company_data: [{
+                name_company: request.payload.name_company,
+                address_company: [{
+                    street_and_number: request.payload.street_and_number,
+                    city: request.payload.city,
+                    postcode: request.payload.postcode,
+                    country: request.payload.country
+                }],
+                phone_number: request.payload.phone_number,
+                fax_number: request.payload.fax_number,
+                email_address: request.payload.email_address,
+                NIP: request.payload.NIP,
+                REGON: request.payload.REGON,
+            }],
+
+        });
+
+        return h.response(newInformationHotel).code(200);
+    }
+});
+
+//delete data
+server.route({
+    method: 'DELETE',
+    path: '/deleteInformationHotel',
+    handler: async (request, h) => {
+        const id = request.query.id;
+        const deleteInformationHotel = await dataHotel.findOne({_id:id}).remove();
+        return h.response(deleteInformationHotel).code(200);
     }
 });

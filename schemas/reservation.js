@@ -8,11 +8,16 @@ const reservationSchema = new Schema({
     check_in: String,
     check_out: String,
     parking: String,
-    breakfast: String,
     car_registration: String,
+    breakfast: String,
+    quantity_breakfast: {type: Number, default: 0},
+    mobile_reservation: String,
+    phone_number: String,
     room_number: String,
-    number_of_people: Number,
-    booking_price: Number
+    number_of_people: {type: Number, default: 0},
+    booking_price: {type: Number, default: 0},
+    more_information: String,
+    address_mail: String
 },{
     collection: 'reservation'
 });

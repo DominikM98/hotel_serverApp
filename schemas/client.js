@@ -7,7 +7,7 @@ const clientSchema = new Schema({
     last_name: String,
     address: String,
     email_address: String,
-    phone_number: Number
+    phone_number: {type: Number, default: 0}
 }, {
     collection: 'client'
 });

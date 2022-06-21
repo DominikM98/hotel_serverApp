@@ -8,7 +8,7 @@ const employeeSchema = new Schema({
    pesel_number: String,
    address: String,
    email: String,
-   phone_number: Number,
+   phone_number: {type: Number, default: 0},
    position: String,
    name_bank: String,
    account_number: String,
