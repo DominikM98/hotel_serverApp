@@ -15,7 +15,7 @@ const reservationSchema = new Schema({
     phone_number: String,
     room_number: String,
     number_of_people: {type: Number, default: 0},
-    booking_price: {type: Number, default: 0},
+    booking_price: {type: Number, default: 0},  
     more_information: String,
     address_mail: String
 },{

@@ -16,6 +16,7 @@ import {Client} from "./schemas/client.js";
 import {MobileReservation} from "./schemas/mobileReservation.js";
 import {dataHotel} from "./schemas/dataHotel.js";
 import {mobileUsers} from "./schemas/mobileUsers.js";
+import {reviewHotel} from "./schemas/reviewHotel.js";
 
 
 const server = Hapi.server({
@@ -225,6 +226,19 @@ server.route({
     }
 });
 
+//delete mobile client
+server.route({
+    method: 'DELETE',
+    path: '/mobileClient/deleteMobileClient',
+    handler: async (request, h) => {
+        const id = request.query.id;
+        console.log(id)
+        const deleteMobileClient = await mobileUsers.findOne({_id:id}).remove();
+        console.log(deleteMobileClient)
+        return h.response(deleteMobileClient).code(200);
+    }
+});
+
 //RESTAURANT
 //show all item menu
 server.route({
@@ -293,8 +307,6 @@ server.route({
         console.log(phoneNumber);
         const getOneReservation = await Reservation.find({"phone_number": phoneNumber});
         return h.response(getOneReservation).code(200)
-      //  console.log(getOneReservation)
-       // return h.response(getOneReservation).code(200);
     }
 });
 
@@ -304,7 +316,6 @@ server.route({
     path: '/reservation/createReservation',
     handler: async (request, h) => {
 
-        console.log(request.payload);
         const newReservation = await Reservation.create({
             first_name: request.payload.first_name,
             last_name: request.payload.last_name,
@@ -613,35 +624,28 @@ server.route({
     handler: async (request, h) => {
 
         console.log(request.payload);
+
         const newInformationHotel = await dataHotel.create({
             description: request.payload.description,
-            facilities:[{ name_convenience: request.payload.name_convenience}],
-            contact_with_dept: [{
-                dept_name: request.payload.dept_name,
-                more_info: [{
-                    person_name: request.payload.person_name,
-                    phone_number: request.payload.phone_number,
-                    email_address: request.payload.email_address
-                }],
-            }],
-            company_data: [{
-                name_company: request.payload.name_company,
-                address_company: [{
-                    street_and_number: request.payload.street_and_number,
-                    city: request.payload.city,
-                    postcode: request.payload.postcode,
-                    country: request.payload.country
-                }],
-                phone_number: request.payload.phone_number,
-                fax_number: request.payload.fax_number,
-                email_address: request.payload.email_address,
-                NIP: request.payload.NIP,
-                REGON: request.payload.REGON,
-            }],
+            facilities:request.payload.facilities,
+            contact_with_dept: request.payload.contact_with_dept,
+            company_data: request.payload.company_data,
 
         });
 
         return h.response(newInformationHotel).code(200);
+    }
+});
+
+//update data
+server.route({
+    method: 'PUT',
+    path: '/updateInformationHotel',
+    handler: async(request, h) => {
+        const id = request.payload._id;
+        const data = request.payload;
+        const updateInformationHotel = await dataHotel.findByIdAndUpdate({_id:id}, data);
+        return h.response(updateInformationHotel).code(200);
     }
 });
 
@@ -655,3 +659,45 @@ server.route({
         return h.response(deleteInformationHotel).code(200);
     }
 });
+
+//REVIEW HOTEL
+//show all review
+server.route({
+    method:'GET',
+    path: '/showReviewsHotel',
+    handler: async (request, h) => {
+        const getReviewsHotel = await reviewHotel.find({});
+        console.log(getReviewsHotel)
+        return h.response(getReviewsHotel).code(200);
+    }
+});
+
+//add new review
+server.route({
+    method: 'POST',
+    path: '/createReviewHotel',
+    handler: async (request, h) => {
+
+        console.log(request.payload);
+
+        const newReviewHotel = await reviewHotel.create({
+            number_booking: request.payload.number_booking,
+            about_hotel: request.payload.about_hotel,
+            reception_service: request.payload.reception_service,
+            restaurant_service: request.payload.restaurant_service,
+            room_service: request.payload.room_service,
+            interior_room: request.payload.interior_room,
+            equipment_room: request.payload.equipment_room,
+            good_things: request.payload.good_things,
+            bad_things: request.payload.bad_things,
+            recommend: request.payload.recommend,
+            more_data: request.payload.more_data
+
+        });
+
+        return h.response(newReviewHotel).code(200);
+    }
+});
+
+
+export default server

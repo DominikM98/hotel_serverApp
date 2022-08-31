@@ -2,36 +2,30 @@ import mongoose from 'mongoose';
 
 const {Schema} = mongoose;
 
-
 const dataHotelSchema = new Schema ({
     description: String,
-    facilities: [
-        {
-            name_convenience: String,
-        }
-    ],
+    facilities:[{$name_convenience: String}],
     contact_with_dept: [
         {
-            dept_name: String,
-            more_info: [
+            $dept_name: String,
+            $more_info:  [
                 {
-
-                    person_name: String,
-                    phone_number: Number,
-                    email_address: String
+                    $person_name: String,
+                    $phone_number: Number,
+                    $email_address: String
                 }
             ]
         }
     ],
-    company_data: [
+    company_data:
         {
             name_company: String,
-            address_company: [
+            $address_company: [
                 {
-                    street_and_number: String,
-                    city: String,
-                    postcode: String,
-                    country: String
+                    $street_and_number: String,
+                    $city: String,
+                    $postcode: String,
+                    $country: String
                 }
             ],
             phone_number: Number,
@@ -40,7 +34,6 @@ const dataHotelSchema = new Schema ({
             NIP: String,
             REGON: Number
         }
-    ]
 }, {
     collection: 'dataHotel'
 });
